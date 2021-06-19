@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 #--------------------------------------------------------------------------
 # TrIDDefsPack - TrID's definitions packager
@@ -34,15 +34,15 @@ def header_intro():
     """
     Display the usual presentation, version, (C) notices, etc.
     """
-    print
-    print "TrIDDefsPack/Py - TrID's defs packager v%s - "\
-          "(C) 2011-2016 By M.Pontello" % (PROGRAM_VER)
-    print
+    print()
+    print("TrIDDefsPack/Py - TrID's defs packager v%s - "\
+          "(C) 2011-2016 By M.Pontello" % (PROGRAM_VER))
+    print()
 
 
 def errexit(mess, errlev=1):
     """display an error and exit"""
-    print "%s: error: %s" % (os.path.split(sys.argv[0])[1], mess)
+    print("%s: error: %s" % (os.path.split(sys.argv[0])[1], mess))
     sys.exit(errlev)
 
 
@@ -189,7 +189,7 @@ def trddef2bin(triddef, stripinfo):
     InfoChunk += trdchunk("TYPE", triddef.filetype)
     InfoChunk += trdchunk("EXT ", "/".join(triddef.ext))
     InfoChunk += trdchunk("MIME", triddef.mime, opt=True)
-    if triddef.tag <> 0:
+    if triddef.tag != 0:
         InfoChunk += trdchunk("TAG ", pack("<I", triddef.tag))
 
     if not stripinfo:
@@ -281,7 +281,7 @@ def main():
     header_intro()
     CMD = get_cmdline()
 
-    print "Building files list..."
+    print("Building files list...")
     filenames = []
     updatetempname = "triddefspack.tmp"
 
@@ -291,7 +291,7 @@ def main():
         if len(filenames) == 0 or CMD["update"] == False:
             filenames += buildDefList("defs")
             CMD["update"] = False
-            print "No update!"
+            print("No update!")
     else:
         for filename in CMD["files"]:
             if os.path.isdir(filename):
@@ -302,8 +302,8 @@ def main():
     filenames = sorted(set(filenames))
 
     deflist = []
-    print "Found %d definitions." % len(filenames)
-    print "Reading..."
+    print("Found %d definitions." % len(filenames))
+    print("Reading...")
 
     c = 0
     for filename in filenames:
@@ -311,7 +311,7 @@ def main():
         try:
             triddef.loadXml(filename)
         except XML.ParseError as e:
-            print "\n\nError parsing def %s: %s" % (filename, e)
+            print("\n\nError parsing def %s: %s" % (filename, e))
             time.sleep(20)
             sys.exit(1)
         except:
@@ -319,12 +319,12 @@ def main():
         deflist.append(triddef)
         c +=1
         if c == 17:
-            print "\r%5d %s" % (len(deflist), (triddef.filetype+" "*70)[:70]),
+            print("\r%5d %s" % (len(deflist), (triddef.filetype+" "*70)[:70]), end=' ')
             c = 0
 
-    print "\r%s\r" % (" " * 76),
+    print("\r%s\r" % (" " * 76), end=' ')
 
-    print "Packing..."
+    print("Packing...")
     defnumnew = len(deflist)
     defdatanew = trdbuild(deflist, CMD["strip"])
     if CMD["update"]:
@@ -337,7 +337,7 @@ def main():
             defnumold -= lastupdatedata["defnum"]
         defdata = defdatanew + defdataold
         defnum = defnumnew + defnumold
-        print "Adding existing %i definitions..." % (defnumold)
+        print("Adding existing %i definitions..." % (defnumold))
         #write the data necessary to id the new section, to be
         #removed next time
         with open(updatetempname, "w") as tf:
@@ -351,11 +351,11 @@ def main():
         if os.path.exists(updatetempname):
             os.remove(updatetempname)
     trddata = trdpack(defdata, defnum)
-    print "Package size: %d bytes. Definitions: %d" % (len(trddata), defnum)
+    print("Package size: %d bytes. Definitions: %d" % (len(trddata), defnum))
 
     with open(CMD["trd"], "wb") as ftrd:
         ftrd.write(trddata)
-    print "File %s written." % (CMD["trd"])
+    print("File %s written." % (CMD["trd"]))
 
 
 if __name__ == '__main__':
